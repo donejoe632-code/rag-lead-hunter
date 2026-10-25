@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎯 RAG Lead Hunter & B2B Database Explorer</title>
+  <meta name="description" content="Интерактивный дашборд и CRM для просмотра базы B2B клиентов, RAG-лидов, персонализированных питчей и прямого аутрича.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-container">
+        <div class="brand-block">
+          <div class="brand-logo">
+            <span class="logo-icon">🎯</span>
+            <div class="brand-text">
+              <span class="brand-title">RAG Lead Hunter</span>
+              <span class="brand-subtitle">B2B Outreach & CRM Explorer</span>
+            </div>
+          </div>
+          <span class="badge-version">v2.0 PRO</span>
+        </div>
+
+        <!-- Center Tabs -->
+        <nav class="nav-tabs" id="mainNavTabs" role="tablist">
+          <button class="nav-tab active" data-tab="rag" id="tabBtnRag" role="tab" aria-selected="true">
+            <span class="tab-icon">🎯</span>
+            <span class="tab-label">RAG Лиды</span>
+            <span class="tab-badge" id="badgeRagCount">0</span>
+          </button>
+          <button class="nav-tab" data-tab="kz" id="tabBtnKz" role="tab" aria-selected="false">
+            <span class="tab-icon">🏢</span>
+            <span class="tab-label">Компании Казахстана</span>
+            <span class="tab-badge" id="badgeKzCount">0</span>
+          </button>
+          <button class="nav-tab" data-tab="digest" id="tabBtnDigest" role="tab" aria-selected="false">
+            <span class="tab-icon">🔥</span>
+            <span class="tab-label">Горячий Дайджест</span>
+            <span class="tab-badge hot-badge" id="badgeDigestCount">ТОП</span>
+          </button>
+          <button class="nav-tab" data-tab="analytics" id="tabBtnAnalytics" role="tab" aria-selected="false">
+            <span class="tab-icon">📊</span>
+            <span class="tab-label">Аналитика</span>
+          </button>
+        </nav>
+
+        <!-- Right Actions -->
+        <div class="header-actions">
+          <button class="btn btn-secondary btn-icon" id="btnRefreshData" title="Обновить базу данных с диска">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+            <span class="btn-text">Обновить</span>
+          </button>
+
+          <!-- Export Dropdown -->
+          <div class="dropdown" id="exportDropdown">
+            <button class="btn btn-primary" id="btnExportMenu" aria-expanded="false">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              <span>Экспорт</span>
+              <svg class="icon chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div class="dropdown-menu" id="exportDropdownMenu">
+              <a href="./output/leads_rag_target.xlsx" class="dropdown-item" download>
+                <span class="format-tag format-xlsx">XLSX</span>
+                <span>RAG Лиды (Excel)</span>
+              </a>
+              <a href="./output/leads_rag_target.csv" class="dropdown-item" download>
+                <span class="format-tag format-csv">CSV</span>
+                <span>RAG Лиды (CSV)</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <a href="./output/b2b_companies_kazakhstan.xlsx" class="dropdown-item" download>
+                <span class="format-tag format-xlsx">XLSX</span>
+                <span>База KZ Компаний (Excel)</span>
+              </a>
+              <a href="./output/b2b_companies_kazakhstan.csv" class="dropdown-item" download>
+                <span class="format-tag format-csv">CSV</span>
+                <span>База KZ Компаний (CSV)</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item" id="btnExportFiltered">
+                <span class="format-tag format-custom">FILT</span>
+                <span>Скачать текущий фильтр (CSV)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- GitHub Link -->
+          <a href="https://github.com/donejoe632-code/rag-lead-hunter" target="_blank" class="btn btn-ghost btn-icon-only" title="Открыть репозиторий на GitHub">
+            <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          </a>
+
+          <!-- Theme Toggle -->
+          <button class="btn btn-ghost btn-icon-only" id="btnThemeToggle" title="Переключить тему (Светлая / Темная)">
+            <svg class="icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+      <!-- KPI Metrics Bar -->
+      <section class="kpi-grid" id="kpiGrid">
+        <div class="kpi-card" id="kpiTotal">
+          <div class="kpi-icon-wrap icon-indigo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Всего в базе</span>
+            <div class="kpi-value-row">
+              <span class="kpi-value" id="kpiTotalVal">0</span>
+              <span class="kpi-subtext" id="kpiTotalSub">лидов & компаний</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-card clickable" id="kpiHot" title="Нажмите, чтобы отфильтровать ТОП-горячие лиды">
+          <div class="kpi-icon-wrap icon-amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">🔥 Горячие лиды (8-10)</span>
+            <div class="kpi-value-row">
+              <span class="kpi-value text-amber" id="kpiHotVal">0</span>
+              <span class="kpi-pill pill-amber">Высокий приоритет</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-card clickable" id="kpiContacts" title="Нажмите, чтобы показать только с прямыми контактами">
+          <div class="kpi-icon-wrap icon-emerald">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Прямые контакты (TG / WA)</span>
+            <div class="kpi-value-row">
+              <span class="kpi-value text-emerald" id="kpiContactsVal">0</span>
+              <span class="kpi-subtext">готовы к диалогу</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpiOutreach">
+          <div class="kpi-icon-wrap icon-cyan">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Воронка CRM (В работе)</span>
+            <div class="kpi-value-row">
+              <span class="kpi-value text-cyan" id="kpiOutreachVal">0</span>
+              <span class="kpi-subtext" id="kpiOutreachSub">отправлено / диалог</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Filter & Search Toolbar -->
+      <section class="toolbar-section">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="searchInput" placeholder="Поиск по компании, роли, контакту, боли, телефону, городу..." autocomplete="off">
+          <button class="clear-search-btn" id="btnClearSearch" title="Очистить поиск" style="display:none;">✕</button>
+        </div>
+
+        <!-- Dynamic Filter Controls -->
+        <div class="filters-row">
+          <!-- RAG specific filters -->
+          <div class="filters-group" id="ragFiltersGroup">
+            <div class="select-wrap">
+              <label for="filterScore">Приоритет:</label>
+              <select id="filterScore">
+                <option value="all">Все оценки</option>
+                <option value="10">⭐ 10 — Максимальный</option>
+                <option value="9">⭐ 9 — Высокий</option>
+                <option value="8">⭐ 8 — Отличный</option>
+                <option value="7">⭐ 7 — Средний</option>
+                <option value="6">⭐ 6 — Умеренный</option>
+                <option value="4-5">⭐ 4-5 — Базовый</option>
+              </select>
+            </div>
+
+            <div class="select-wrap">
+              <label for="filterPain">Боль бизнеса:</label>
+              <select id="filterPain">
+                <option value="all">Все боли и категории</option>
+                <option value="support">Саппорт и техподдержка</option>
+                <option value="knowledge">База знаний (Notion / Confluence)</option>
+                <option value="onboarding">Онбординг и обучение персонала</option>
+                <option value="legal">Договоры и регламенты</option>
+              </select>
+            </div>
+
+            <div class="select-wrap">
+              <label for="filterSource">Источник:</label>
+              <select id="filterSource">
+                <option value="all">Все источники</option>
+                <option value="telegram">Telegram каналы</option>
+                <option value="habr">Хабр Карьера</option>
+                <option value="hh">HeadHunter (HH.kz)</option>
+              </select>
+            </div>
+
+            <div class="select-wrap">
+              <label for="filterStatus">Статус CRM:</label>
+              <select id="filterStatus">
+                <option value="all">Все статусы</option>
+                <option value="new">Новый</option>
+                <option value="in_progress">В работе</option>
+                <option value="sent">Питч отправлен</option>
+                <option value="call">Назначен созвон</option>
+                <option value="reject">Отказ / Не целевой</option>
+              </select>
+            </div>
+
+            <label class="checkbox-label" title="Показывать только лиды с прямым Telegram @username или email">
+              <input type="checkbox" id="checkOnlyContacts">
+              <span class="custom-checkbox"></span>
+              <span>Только с @контактом</span>
+            </label>
+          </div>
+
+          <!-- KZ specific filters -->
+          <div class="filters-group" id="kzFiltersGroup" style="display:none;">
+            <div class="select-wrap">
+              <label for="filterKzNiche">Сфера / Ниша:</label>
+              <select id="filterKzNiche">
+                <option value="all">Все ниши</option>
+                <option value="med">Медицинские центры и клиники</option>
+                <option value="ecom">E-commerce и ритейл</option>
+                <option value="estate">Недвижимость и девелопмент</option>
+                <option value="legal">Юридические и бухуслуги</option>
+                <option value="it">IT и Digital агентства</option>
+                <option value="build">Производство и строительство</option>
+              </select>
+            </div>
+
+            <div class="select-wrap">
+              <label for="filterKzCity">Город:</label>
+              <select id="filterKzCity">
+                <option value="all">Все города</option>
+                <option value="Алматы">Алматы</option>
+                <option value="Астана">Астана</option>
+                <option value="Шымкент">Шымкент</option>
+                <option value="Караганда">Караганда</option>
+              </select>
+            </div>
+
+            <label class="checkbox-label" title="Показывать компании с прямым WhatsApp номером">
+              <input type="checkbox" id="checkKzWhatsApp">
+              <span class="custom-checkbox"></span>
+              <span>Только с WhatsApp</span>
+            </label>
+
+            <label class="checkbox-label" title="Показывать компании с официальным сайтом">
+              <input type="checkbox" id="checkKzWebsite">
+              <span class="custom-checkbox"></span>
+              <span>Только с сайтом</span>
+            </label>
+          </div>
+
+          <!-- View Toggle & Count -->
+          <div class="toolbar-right">
+            <span class="results-counter" id="resultsCount">Показано: 0 из 0</span>
+
+            <div class="view-switch-btns">
+              <button class="view-btn active" id="btnViewTable" title="Вид: Таблица">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+              </button>
+              <button class="view-btn" id="btnViewGrid" title="Вид: Карточки">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Active Filter Tags Bar -->
+      <div class="active-tags-bar" id="activeTagsBar" style="display:none;">
+        <span class="tags-label">Активные фильтры:</span>
+        <div class="tags-list" id="activeTagsList"></div>
+        <button class="btn-clear-all-tags" id="btnResetFilters">Сбросить все</button>
+      </div>
+
+      <!-- Tab Content 1: RAG Leads -->
+      <section class="tab-pane active" id="paneRag">
+        <!-- Table View Container -->
+        <div class="data-table-container" id="ragTableView">
+          <table class="data-table" id="tableRag">
+            <thead>
+              <tr>
+                <th style="width: 50px;" class="col-center">№</th>
+                <th style="width: 90px;" class="col-center sortable" data-sort="score">
+                  Приоритет <span class="sort-indicator"></span>
+                </th>
+                <th style="width: 220px;" class="sortable" data-sort="company">
+                  Компания <span class="sort-indicator"></span>
+                </th>
+                <th style="width: 240px;">Вакансия / Позиция</th>
+                <th style="width: 220px;">Боль бизнеса & Возможность RAG</th>
+                <th style="width: 140px;">Источник</th>
+                <th style="width: 180px;">Контакт для связи</th>
+                <th style="width: 130px;" class="col-center">Статус CRM</th>
+                <th style="width: 180px;" class="col-center">Быстрые действия</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyRag">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Grid View Container -->
+        <div class="data-grid-container" id="ragGridView" style="display:none;">
+          <!-- Rendered via JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="ragEmptyState" style="display:none;">
+          <div class="empty-icon">🔍</div>
+          <h3>Ничего не найдено</h3>
+          <p>По вашему запросу и фильтрам нет подходящих лидов. Попробуйте сбросить фильтры.</p>
+          <button class="btn btn-secondary" onclick="window.app.resetFilters()">Сбросить фильтры</button>
+        </div>
+      </section>
+
+      <!-- Tab Content 2: Kazakhstan Companies -->
+      <section class="tab-pane" id="paneKz" style="display:none;">
+        <div class="data-table-container" id="kzTableView">
+          <table class="data-table" id="tableKz">
+            <thead>
+              <tr>
+                <th style="width: 50px;" class="col-center">№</th>
+                <th style="width: 260px;" class="sortable" data-sort="company">Компания <span class="sort-indicator"></span></th>
+                <th style="width: 220px;">Сфера / Ниша</th>
+                <th style="width: 120px;">Город</th>
+                <th style="width: 170px;">Телефон</th>
+                <th style="width: 150px;" class="col-center">WhatsApp</th>
+                <th style="width: 170px;">Email</th>
+                <th style="width: 180px;">Сайт</th>
+                <th>Адрес</th>
+                <th style="width: 140px;" class="col-center">Действия</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyKz">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Grid View Container -->
+        <div class="data-grid-container" id="kzGridView" style="display:none;">
+          <!-- Rendered via JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="kzEmptyState" style="display:none;">
+          <div class="empty-icon">🏢</div>
+          <h3>Нет подходящих компаний</h3>
+          <p>Попробуйте выбрать другую нишу или город в фильтрах выше.</p>
+          <button class="btn btn-secondary" onclick="window.app.resetFilters()">Сбросить фильтры</button>
+        </div>
+      </section>
+
+      <!-- Tab Content 3: Hot Leads Digest -->
+      <section class="tab-pane" id="paneDigest" style="display:none;">
+        <div class="digest-wrapper">
+          <div class="digest-header">
+            <div class="digest-badge-row">
+              <span class="badge-fire">🔥 Горячий B2B-аутрич</span>
+              <span class="digest-time-tag">Готовые сценарии для отправки прямо сейчас</span>
+            </div>
+            <h2>ТОП-Лиды с максимальным приоритетом и готовыми офферами</h2>
+            <p>Эти компании имеют максимальный `rag_score` (10/10) и активный запрос на саппорт, регламенты и онбординг. Нажимайте кнопку копирования и отправляйте прямо в Telegram или Email.</p>
+          </div>
+          <div class="digest-cards-list" id="digestContainer">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab Content 4: Analytics -->
+      <section class="tab-pane" id="paneAnalytics" style="display:none;">
+        <div class="analytics-wrapper">
+          <div class="analytics-header">
+            <h2>📊 Сводная аналитика по собранной базе</h2>
+            <p>Распределение приоритетов, ведущих болей бизнеса и источников генерации лидов</p>
+          </div>
+
+          <div class="analytics-grid">
+            <!-- Card 1: Score distribution -->
+            <div class="analytics-card">
+              <div class="analytics-card-header">
+                <h3>Распределение по баллам приоритета (RAG Score)</h3>
+                <span class="card-badge">От 1 до 10</span>
+              </div>
+              <div class="chart-bars-list" id="chartScoreBars"></div>
+            </div>
+
+            <!-- Card 2: Pain categories -->
+            <div class="analytics-card">
+              <div class="analytics-card-header">
+                <h3>Ведущие боли бизнеса (Спрос на AI)</h3>
+                <span class="card-badge">Ключевые триггеры</span>
+              </div>
+              <div class="chart-bars-list" id="chartPainBars"></div>
+            </div>
+
+            <!-- Card 3: Sources breakdown -->
+            <div class="analytics-card">
+              <div class="analytics-card-header">
+                <h3>Источники лидов</h3>
+                <span class="card-badge">Каналы сбора</span>
+              </div>
+              <div class="chart-bars-list" id="chartSourceBars"></div>
+            </div>
+
+            <!-- Card 4: Kazakhstan Niches -->
+            <div class="analytics-card">
+              <div class="analytics-card-header">
+                <h3>Казахстан: Охват ниш и секторов</h3>
+                <span class="card-badge">6 целевых рынков</span>
+              </div>
+              <div class="chart-bars-list" id="chartKzNiches"></div>
+            </div>
+
+            <!-- Card 5: CRM Funnel Status -->
+            <div class="analytics-card full-width">
+              <div class="analytics-card-header">
+                <h3>Воронка аутрича (CRM Статусы)</h3>
+                <span class="card-badge">Прогресс обработки</span>
+              </div>
+              <div class="funnel-container" id="crmFunnelContainer"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Slide-out Lead Drawer / Inspector -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <aside class="lead-drawer" id="leadDrawer" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-title-wrap">
+          <div class="drawer-score-badge" id="drawerScoreBadge">⭐ 10</div>
+          <div>
+            <h2 class="drawer-title" id="drawerCompany">Название компании</h2>
+            <span class="drawer-subtitle" id="drawerTitle">Вакансия / Роль</span>
+          </div>
+        </div>
+        <button class="drawer-close-btn" id="btnDrawerClose" title="Закрыть панель (Esc)">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Quick Meta Row -->
+        <div class="drawer-meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">Источник:</span>
+            <span class="meta-val" id="drawerSource">-</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Выявленная боль:</span>
+            <span class="meta-val highlight" id="drawerCategory">-</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Зарплата / Бюджет:</span>
+            <span class="meta-val" id="drawerSalary">-</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Контакт:</span>
+            <span class="meta-val" id="drawerContactVal">-</span>
+          </div>
+        </div>
+
+        <!-- Direct Action Buttons Row -->
+        <div class="drawer-action-buttons" id="drawerActionButtons">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- CRM Status Selector & Notes -->
+        <div class="crm-lead-box">
+          <div class="crm-box-header">
+            <h4>Статус обработки в CRM</h4>
+            <select id="drawerStatusSelect" class="crm-status-dropdown">
+              <option value="new">⚪ Новый лид</option>
+              <option value="in_progress">🟡 В работе</option>
+              <option value="sent">🔵 Питч отправлен</option>
+              <option value="call">🟢 Назначен созвон / демо</option>
+              <option value="reject">🔴 Отказ / Не актуально</option>
+            </select>
+          </div>
+          <div class="crm-notes-wrap">
+            <label for="drawerNotes">Заметки по клиенту (сохраняются автоматически):</label>
+            <textarea id="drawerNotes" placeholder="Например: Написал в TG 26 октября, ответила Анастасия, попросила перезвонить во вторник в 14:00..." rows="3"></textarea>
+            <span class="notes-save-indicator" id="notesSavedTag">Сохранено</span>
+          </div>
+        </div>
+
+        <!-- Pitch 1: Telegram Message -->
+        <div class="pitch-card pitch-tg" id="drawerPitchTgWrap">
+          <div class="pitch-header">
+            <div class="pitch-badge">
+              <svg class="icon-tg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+              <span>Персональный питч для Telegram</span>
+            </div>
+            <button class="btn btn-sm btn-primary" id="btnCopyTgPitch">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span id="btnCopyTgText">Скопировать для Telegram</span>
+            </button>
+          </div>
+          <pre class="pitch-code-block" id="drawerTgPitchText"></pre>
+        </div>
+
+        <!-- Pitch 2: Email Message -->
+        <div class="pitch-card pitch-email" id="drawerPitchEmailWrap">
+          <div class="pitch-header">
+            <div class="pitch-badge">
+              <svg class="icon-email" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span>Персональное письмо для Email</span>
+            </div>
+            <div class="pitch-btn-group">
+              <button class="btn btn-sm btn-secondary" id="btnCopyEmailPitch">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span id="btnCopyEmailText">Скопировать</span>
+              </button>
+              <a href="#" class="btn btn-sm btn-outline" id="btnOpenMailClient">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                <span>Открыть почту</span>
+              </a>
+            </div>
+          </div>
+          <pre class="pitch-code-block" id="drawerEmailPitchText"></pre>
+        </div>
+
+        <!-- Strategy & RAG Value Card -->
+        <div class="strategy-card">
+          <h4>💡 Как закрывать этого клиента:</h4>
+          <ul>
+            <li><strong>Продавайте не RAG, а результат:</strong> сокращение нагрузки на операторов, быстрый онбординг или порядок в договорах.</li>
+            <li><strong>Предложите 3-минутное демо:</strong> покажите, как бот находит ответ в их регламенте без галлюцинаций со ссылкой на страницу.</li>
+            <li><strong>Цель сообщения:</strong> вытащить лицо, принимающее решения (CTO, Head of Support, Founder), на короткий звонок.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Drawer Footer (Navigation) -->
+      <div class="drawer-footer">
+        <button class="btn btn-ghost" id="btnPrevLead" title="Предыдущий лид (Стрелка влево)">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          <span>Предыдущий</span>
+        </button>
+        <span class="drawer-nav-counter" id="drawerNavIndex">1 из 190</span>
+        <button class="btn btn-ghost" id="btnNextLead" title="Следующий лид (Стрелка вправо)">
+          <span>Следующий</span>
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
